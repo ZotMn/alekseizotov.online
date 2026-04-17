@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мастермайнд с ИИ-ускорением — Алексей Зотов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --bg:          #FFFFFF;
+    --bg-alt:      #F8F9FA;
+    --bg-dark:     #0F172A;
+    --text:        #212529;
+    --text-muted:  #6B7280;
+    --text-light:  #9CA3AF;
+    --accent:      #1E40AF;
+    --accent-h:    #1D4ED8;
+    --accent-light:#EFF6FF;
+    --accent-mid:  #BFDBFE;
+    --border:      #E5E7EB;
+    --border-soft: #F1F5F9;
+    --success:     #059669;
+    --warn:        #D97706;
+    --radius-sm:   8px;
+    --radius:      12px;
+    --radius-lg:   20px;
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    --shadow:      0 4px 16px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.04);
+    --shadow-lg:   0 12px 40px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.06);
+    --max-w:       1120px;
+    --gap:         80px;
+  }
+
+  /* ── RESET ──────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: var(--accent); text-decoration: none; }
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+  .container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  section { padding: var(--gap) 0; }
+  section.alt { background: var(--bg-alt); }
+  section.dark {
+    background: var(--bg-dark);
+    color: #F1F5F9;
+  }
+
+  /* ── TYPOGRAPHY ─────────────────────────────────────────── */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .eyebrow::before {
+    content: '';
+    display: block;
+    width: 20px; height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  h1 {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    color: var(--text);
+  }
+  h2 {
+    font-size: clamp(26px, 3.5vw, 42px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.015em;
+    color: var(--text);
+  }
+  h3 { font-size: 20px; font-weight: 600; line-height: 1.3; }
+  .lead {
+    font-size: clamp(16px, 2vw, 19px);
+    color: var(--text-muted);
+    max-width: 600px;
+    line-height: 1.7;
+  }
+  .section-header { margin-bottom: 52px; }
+  .section-header.center { text-align: center; }
+  .section-header.center .lead { margin: 12px auto 0; }
+  .section-header .lead { margin-top: 12px; }
+
+  /* ── BUTTONS ─────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 16px 32px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: all 280ms cubic-bezier(.32,.72,0,1);
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(30,64,175,.3);
+  }
+  .btn-primary:hover {
+    background: var(--accent-h);
+    box-shadow: 0 6px 24px rgba(30,64,175,.4);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active { transform: scale(.97); }
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+  }
+  .btn-outline:hover {
+    background: var(--accent-light);
+  }
+  .btn-lg { padding: 20px 40px; font-size: 17px; }
+  .btn-arrow::after { content: '→'; }
+
+  /* ── STICKY HEADER ──────────────────────────────────────── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    transition: box-shadow 200ms;
+  }
+  .header.scrolled { box-shadow: var(--shadow); }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .logo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .logo span { color: var(--accent); }
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .header-nav a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color 200ms;
+  }
+  .header-nav a:hover { color: var(--text); }
+  .header .btn { padding: 10px 22px; font-size: 14px; }
+
+  /* ── HERO ────────────────────────────────────────────────── */
+  .hero {
+    padding: 96px 0 80px;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 440px;
+    gap: 64px;
+    align-items: center;
+  }
+  .hero h1 { margin-bottom: 20px; }
+  .hero .lead { margin-bottom: 36px; }
+  .hero-cta-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .trust-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .trust-line .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+  .hero-visual {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+  }
+  .hero-character {
+    width: 220px;
+    flex-shrink: 0;
+    margin-right: -24px;
+    margin-bottom: -8px;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,.12));
+    animation: char-float 4s ease-in-out infinite;
+  }
+  @keyframes char-float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+  }
+  .hero-card-wrap {
+    position: relative;
+    flex: 1;
+  }
+  .hero-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+  }
+  .hero-card-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .ai-summary-preview {
+    background: var(--bg-alt);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .ai-summary-preview .summary-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .ai-summary-preview .summary-row:last-child { margin-bottom: 0; }
+  .summary-icon { color: var(--accent); flex-shrink: 0; }
+  .tool-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tool-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 50px;
+  }
+  .spots-badge {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    background: var(--warn);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 50px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ── STATS BAR ───────────────────────────────────────────── */
+  .stats-bar {
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -.02em;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ── PAIN ────────────────────────────────────────────────── */
+  .pain-section-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+  }
+  .pain-character {
+    width: 200px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,.10));
+    animation: char-float 4s ease-in-out infinite;
+    animation-delay: .5s;
+    align-self: flex-end;
+  }
+  @media (max-width: 900px) {
+    .pain-section-wrap { flex-direction: column; }
+    .pain-character { width: 140px; align-self: center; }
+  }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .pain-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 300ms, transform 300ms;
+  }
+  .pain-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+  .pain-check {
+    width: 22px; height: 22px;
+    background: var(--accent-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .pain-card p { font-size: 15px; color: var(--text); }
+
+  /* ── FORMAT ──────────────────────────────────────────────── */
+  .format-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  .format-steps { display: flex; flex-direction: column; gap: 0; }
+  .format-step {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .format-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-body h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .step-body p { font-size: 14px; color: var(--text-muted); }
+  .format-visual {
+    background: var(--bg-dark);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    color: #F1F5F9;
+  }
+  .format-visual-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-bottom: 24px;
+  }
+  .time-slots { display: flex; flex-direction: column; gap: 10px; }
+  .time-slot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,.05);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  .time-slot.active {
+    background: rgba(30,64,175,.3);
+    border: 1px solid rgba(30,64,175,.5);
+  }
+  .time-slot .slot-time {
+    font-weight: 700;
+    color: var(--accent-mid);
+    font-size: 13px;
+    width: 70px;
+    flex-shrink: 0;
+  }
+  .time-slot.active .slot-time { color: #93C5FD; }
+  .time-slot .slot-label { color: #CBD5E1; }
+  .time-slot.active .slot-label { color: #F1F5F9; font-weight: 500; }
+
+  /* ── ARTIFACTS ───────────────────────────────────────────── */
+  .artifacts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .artifact-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 300ms, transform 300ms;
+  }
+  .artifact-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+  }
+  .artifact-icon {
+    width: 56px; height: 56px;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+  .artifact-card h3 { margin-bottom: 8px; }
+  .artifact-card p { font-size: 14px; color: var(--text-muted); }
+  .artifact-card.featured {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .artifact-card.featured .artifact-icon { background: rgba(30,64,175,.15); }
+  .artifact-card.featured h3, .artifact-card.featured p { color: var(--accent); }
+
+  /* ── EXPERT ──────────────────────────────────────────────── */
+  .expert-grid {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 64px;
+    align-items: flex-start;
+  }
+  .expert-photo-block {
+    position: sticky;
+    top: 96px;
+  }
+  .expert-photo {
+    width: 100%;
+    aspect-ratio: 4/5;
+    background: var(--bg-alt);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .expert-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .expert-photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 24px;
+  }
+  .expert-photo-placeholder .icon { font-size: 48px; }
+  .credentials {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .credential {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .credential .dot { color: var(--accent); font-size: 18px; line-height: 1; }
+  .expert-content h2 { margin-bottom: 16px; }
+  .expert-lead { font-size: 17px; color: var(--text-muted); margin-bottom: 36px; line-height: 1.7; }
+  .case-cards { display: flex; flex-direction: column; gap: 16px; }
+  .case-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 16px 20px;
+  }
+  .case-card .case-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .case-card .case-result {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .case-card .case-result::before {
+    content: '↑';
+    color: var(--success);
+    font-weight: 700;
+  }
+
+  /* ── TESTIMONIALS ────────────────────────────────────────── */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .testimonial-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+  .testimonial-quote {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  .testimonial-quote::before { content: '«'; }
+  .testimonial-quote::after { content: '»'; }
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .author-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--accent-mid);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .author-name { font-size: 14px; font-weight: 600; }
+  .author-role { font-size: 13px; color: var(--text-muted); }
+  .stars { color: #F59E0B; font-size: 13px; margin-top: 2px; }
+
+  /* ── NOT FOR EVERYONE ────────────────────────────────────── */
+  .filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .filter-col h3 { font-size: 18px; margin-bottom: 20px; }
+  .filter-list { display: flex; flex-direction: column; gap: 12px; }
+  .filter-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 15px;
+  }
+  .filter-icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .filter-icon.yes { background: #DCFCE7; color: var(--success); }
+  .filter-icon.no { background: #FEE2E2; color: #DC2626; }
+  .algo-block {
+    margin-top: 40px;
+    background: var(--bg-dark);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    color: #F1F5F9;
+  }
+  .algo-block h3 { color: #F1F5F9; margin-bottom: 8px; }
+  .algo-block p { color: #94A3B8; font-size: 15px; margin-bottom: 24px; }
+  .algo-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .algo-step {
+    background: rgba(255,255,255,.07);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #CBD5E1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .algo-step .n {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .algo-arrow { color: #334155; font-size: 18px; }
+
+  /* ── PRICING ─────────────────────────────────────────────── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .price-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    background: var(--bg);
+    box-shadow: var(--shadow-sm);
+  }
+  .price-card.featured {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(30,64,175,.12), var(--shadow-lg);
+    position: relative;
+  }
+  .price-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 16px;
+    border-radius: 50px;
+    white-space: nowrap;
+  }
+  .price-label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; }
+  .price-amount {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .price-amount .currency { font-size: 24px; font-weight: 600; vertical-align: super; }
+  .price-amount .period { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+  .price-card.featured .price-amount { color: var(--accent); }
+  .price-note { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+  .price-includes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .price-include-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .price-include-item::before {
+    content: '✓';
+    color: var(--success);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .steps-flow {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    margin-top: 52px;
+    position: relative;
+  }
+  .steps-flow::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: calc(8.33% + 20px);
+    right: calc(8.33% + 20px);
+    height: 2px;
+    background: var(--accent-mid);
+  }
+  .flow-step { text-align: center; position: relative; padding: 0 8px; }
+  .flow-num {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .flow-step p { font-size: 13px; color: var(--text-muted); }
+
+  /* ── FAQ ─────────────────────────────────────────────────── */
+  .faq-list { max-width: 720px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+  .faq-question {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 20px 0;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .faq-question .icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--bg-alt);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 400;
+    flex-shrink: 0;
+    transition: transform 300ms, background 300ms;
+  }
+  .faq-item.open .faq-question .icon {
+    transform: rotate(45deg);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+  .faq-answer {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 400ms cubic-bezier(.32,.72,0,1);
+  }
+  .faq-answer-inner {
+    padding-bottom: 20px;
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ── FINAL CTA ───────────────────────────────────────────── */
+  .final-cta {
+    background: var(--bg-dark);
+    padding: 100px 0;
+    text-align: center;
+  }
+  .final-cta h2 { color: #F1F5F9; margin-bottom: 12px; }
+  .final-cta .lead { color: #94A3B8; margin: 0 auto 40px; }
+  .final-cta .btn-primary {
+    font-size: 18px;
+    padding: 22px 48px;
+  }
+  .final-cta .trust-line {
+    justify-content: center;
+    margin-top: 16px;
+    color: #64748B;
+  }
+
+  /* ── SECTION CHARACTERS ─────────────────────────────────── */
+  .section-character--left {
+    width: 170px;
+    position: absolute;
+    bottom: -77px;
+    right: -136px;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,.10));
+    animation: char-float 4s ease-in-out infinite;
+    animation-delay: 1s;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .final-cta .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+  }
+  .final-cta-content {
+    flex: 1;
+    max-width: 620px;
+    text-align: center;
+  }
+  .cta-character {
+    width: 220px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,.30)) brightness(1.1);
+    animation: char-float 4s ease-in-out infinite;
+    animation-delay: .8s;
+    pointer-events: none;
+    align-self: flex-end;
+    margin-bottom: -20px;
+  }
+  @media (max-width: 900px) {
+    .section-character--left { display: none; }
+    .final-cta .container { flex-direction: column; gap: 24px; }
+    .cta-character { width: 150px; margin-bottom: -10px; order: -1; }
+  }
+
+  /* ── FOOTER ──────────────────────────────────────────────── */
+  footer {
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ── MOBILE ──────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    :root { --gap: 56px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-visual { order: -1; }
+    .hero-character { width: 160px; margin-right: -16px; }
+    .spots-badge { top: -12px; right: 0; }
+    .pain-grid { grid-template-columns: 1fr 1fr; }
+    .format-grid { grid-template-columns: 1fr; }
+    .artifacts-grid { grid-template-columns: 1fr 1fr; }
+    .expert-grid { grid-template-columns: 1fr; }
+    .expert-photo-block { position: static; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .filter-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+    .steps-flow { grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+    .steps-flow::before { display: none; }
+    .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .header-nav { display: none; }
+  }
+  @media (max-width: 580px) {
+    .pain-grid { grid-template-columns: 1fr; }
+    .artifacts-grid { grid-template-columns: 1fr; }
+    .algo-steps { flex-direction: column; }
+    .algo-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header class="header" id="header">
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo">Мастермайнд<br><span>Алексея Зотова</span></div>
+      <nav class="header-nav">
+        <a href="#format">Формат</a>
+        <a href="#expert">Ведущий</a>
+        <a href="#reviews">Отзывы</a>
+        <a href="#pricing">Стоимость</a>
+      </nav>
+      <a href="#apply" class="btn btn-primary btn-arrow">Пройти AI-отбор</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── HERO ───────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Закрытая группа · 5–8 человек · Старт май 2026</div>
+        <h1>Перестань тонуть в рутине. За 6 недель внедрим ИИ, который работает вместо тебя</h1>
+        <p class="lead">Мастермайнд-спринт с Алексеем Зотовым — бывшим операционным директором и практиком автоматизации n8n, Claude, ChatGPT</p>
+        <div class="hero-cta-group">
+          <a href="#apply" class="btn btn-primary btn-lg btn-arrow">Пройти AI-отбор и записаться на разбор</a>
+          <div class="trust-line">
+            <span class="dot"></span>
+            Набор открыт до <strong>30 апреля</strong> · Вход только по квалификации
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <img src="../../assets/Gemini_Generated_Image_ydcotxydcotxydco.png" alt="" class="hero-character">
+        <div class="hero-card-wrap">
+        <div class="spots-badge">⚡ До 30 апреля</div>
+        <div class="hero-card">
+          <div class="hero-card-label">AI-Саммари · После каждой встречи</div>
+          <div class="ai-summary-preview">
+            <div class="summary-row">
+              <span class="summary-icon">📌</span>
+              <span><strong>Вызов:</strong> Ручная сверка платежей — 3 ч/день</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-icon">💡</span>
+              <span><strong>Решение:</strong> Бот сам тянет данные и сводит таблицу автоматически</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-icon">✅</span>
+              <span><strong>Задача на неделю:</strong> Настроить автосверку — за 1 вечер по инструкции</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-icon">📊</span>
+              <span><strong>Результат:</strong> -3 ч/день → экономия ~60 ч/мес</span>
+            </div>
+          </div>
+          <div class="tool-chips">
+            <div class="tool-chip">🤖 Claude</div>
+            <div class="tool-chip">⚙️ n8n</div>
+            <div class="tool-chip">✨ Gemini</div>
+            <div class="tool-chip">📋 Telemost</div>
+          </div>
+        </div>
+        </div><!-- /hero-card-wrap -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS BAR ───────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div>
+        <div class="stat-num">6</div>
+        <div class="stat-label">недель спринта</div>
+      </div>
+      <div>
+        <div class="stat-num">2 ч</div>
+        <div class="stat-label">концентрированной работы на встрече</div>
+      </div>
+      <div>
+        <div class="stat-num">6</div>
+        <div class="stat-label">AI-саммари с планом действий</div>
+      </div>
+      <div>
+        <div class="stat-num">5–8</div>
+        <div class="stat-label">человек в группе</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAIN ────────────────────────────────────────────────── -->
+<section class="alt">
+  <div class="container">
+    <div class="section-header center">
+      <div class="eyebrow">Узнаёшь себя?</div>
+      <h2>Если хотя бы 3 пункта — это про тебя</h2>
+    </div>
+    <div class="pain-section-wrap">
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-check">✓</div>
+        <p>Делаешь всё сам — нет времени думать стратегически</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check">✓</div>
+        <p>Ручные таблицы, копипаст, однотипные отчёты съедают часы каждый день</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check">✓</div>
+        <p>Слышал про ИИ, пробовал ChatGPT — но «как-то не взлетело»</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check">✓</div>
+        <p>Берёшься за 10 проектов сразу, не заканчиваешь ни один</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check">✓</div>
+        <p>Делаешь много, работаешь без выходных — а в деньгах не растёшь</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check">✓</div>
+        <p>Хочется результат, а не ещё один курс с домашками, которые некогда делать</p>
+      </div>
+    </div>
+    <img src="../../assets/Боли.png" alt="" class="pain-character">
+    </div>
+  </div>
+</section>
+
+<!-- ── FORMAT ──────────────────────────────────────────────── -->
+<section id="format">
+  <div class="container">
+    <div class="format-grid">
+      <div style="position:relative">
+        <img src="../../assets/Формат.png" alt="" class="section-character section-character--left">
+        <div class="eyebrow">Формат</div>
+        <h2>Мастермайнд — это не курс. Это спринт к результату</h2>
+        <p class="lead" style="margin:16px 0 36px">Каждую неделю — живая работа над твоей конкретной задачей. Без лекций, без домашних заданий ради заданий.</p>
+        <div class="format-steps">
+          <div class="format-step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>Твой отчёт: открыто и честно</h4>
+              <p>Что сделано за неделю, где застрял, какие проблемы мешают двигаться дальше</p>
+            </div>
+          </div>
+          <div class="format-step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>Алексей задаёт вопросы и даёт своё видение</h4>
+              <p>Находит узкое горлышко и предлагает конкретную схему прямо на созвоне</p>
+            </div>
+          </div>
+          <div class="format-step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>Группа подключается: работает «поле»</h4>
+              <p>Каждый участник добавляет свой опыт и взгляд. Участники подбираются по профилю, их комментарии попадают в точку</p>
+            </div>
+          </div>
+          <div class="format-step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h4>Одна задача на неделю + AI-саммари</h4>
+              <p>Чёткое следующее действие и документ с планом. Приходит автоматически после встречи</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="format-visual">
+        <div class="format-visual-title">Твой блок на встрече · так для каждого участника</div>
+        <div class="time-slots">
+          <div class="time-slot">
+            <span class="slot-time">Шаг 1</span>
+            <span class="slot-label">Ты рассказываешь: что сделано, где затык, какие проблемы</span>
+          </div>
+          <div class="time-slot active">
+            <span class="slot-time">Шаг 2</span>
+            <span class="slot-label">Алексей: вопросы, видение, схема решения ⚡</span>
+          </div>
+          <div class="time-slot active">
+            <span class="slot-time">Шаг 3</span>
+            <span class="slot-label">Каждый участник группы даёт свой комментарий 🧠</span>
+          </div>
+          <div class="time-slot">
+            <span class="slot-time">Шаг 4</span>
+            <span class="slot-label">Одна чёткая задача на неделю: конкретное действие</span>
+          </div>
+          <div class="time-slot">
+            <span class="slot-time">После</span>
+            <span class="slot-label">AI-саммари приходит автоматически каждому 📄</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ARTIFACTS ───────────────────────────────────────────── -->
+<section class="alt">
+  <div class="container">
+    <div class="section-header center">
+      <div class="eyebrow">Что ты получишь</div>
+      <h2>За 6 недель — конкретные артефакты</h2>
+      <p class="lead">Не «знания», не «нетворкинг», а инструменты, которые работают после окончания спринта</p>
+    </div>
+    <div class="artifacts-grid">
+      <div class="artifact-card featured">
+        <div class="artifact-icon"><img src="../../assets/icon-1.png" alt=""></div>
+        <h3>6 AI-Саммари</h3>
+        <p>Word-файл после каждой встречи: транскрипт, твои инсайты, чек-лист задач на неделю</p>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-icon"><img src="../../assets/icon-2.png" alt=""></div>
+        <h3>LMS-дашборд</h3>
+        <p>Личный трекер прогресса, ежедневные отчёты, статусы задач. Всё оцифровано</p>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-icon"><img src="../../assets/icon-3.png" alt=""></div>
+        <h3>База знаний</h3>
+        <p>Готовые промпты для Claude/ChatGPT, шаблоны n8n, рабочие связки автоматизации</p>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-icon"><img src="../../assets/icon-4.png" alt=""></div>
+        <h3>Закрытый TG-чат</h3>
+        <p>Нетворкинг, партнёрства, оперативные ответы от Алексея и группы</p>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-icon"><img src="../../assets/icon-5.png" alt=""></div>
+        <h3>60+ минут разборов</h3>
+        <p>Живая работа над твоей задачей с AI-архитектором — не лекции, а брейншторм</p>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-icon"><img src="../../assets/icon-6.png" alt=""></div>
+        <h3>Схема автоматизации</h3>
+        <p>Конкретная блок-схема твоих процессов с узкими горлышками и ИИ-решениями</p>
+      </div>
+      <div class="artifact-card" style="border-color:var(--accent);background:var(--accent-light);grid-column:1/-1">
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+          <div style="background:rgba(30,64,175,.12);border-radius:var(--radius-sm);padding:10px 16px;font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap">🎁 В подарок · 7 000 руб.</div>
+          <div>
+            <h3 style="color:var(--accent);margin-bottom:4px">ICF-сессия постановки целей</h3>
+            <p style="color:var(--accent);opacity:.8">Персональная коуч-сессия (60 мин) до старта группы. Алексей — сертифицированный коуч ICF. Ты приходишь на первую встречу с чёткой целью на 6 недель, а не придумываешь её на ходу.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── EXPERT ──────────────────────────────────────────────── -->
+<section id="expert">
+  <div class="container">
+    <div class="expert-grid">
+      <div class="expert-photo-block">
+        <div class="expert-photo">
+          <img src="../../assets/Мое фото.png" alt="Алексей Зотов">
+        </div>
+        <div class="credentials">
+          <div class="credential"><span class="dot">·</span> COO 8+ лет · Завод 60+ человек · 1С, CRM</div>
+          <div class="credential"><span class="dot">·</span> ICF-коуч · Магистратура по психологии</div>
+          <div class="credential"><span class="dot">·</span> ИИ-стек: Claude, Gemini, n8n, Telegram-боты</div>
+          <div class="credential"><span class="dot">·</span> Спикер «Терра» · Business Fact Moscow</div>
+        </div>
+      </div>
+      <div class="expert-content">
+        <div class="eyebrow">Ведущий</div>
+        <h2>Алексей Зотов — не теоретик</h2>
+        <p class="expert-lead">Совмещает три роли: COO с 8+ годами управления заводом на 60 человек, сертифицированный ICF-коуч (магистратура по психологии) и ИИ-архитектор с реальными внедрениями. Не просто автоматизирует процессы — меняет архитектуру мышления в бизнесе.</p>
+        <div class="case-cards">
+          <div class="case-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+              <span style="font-size:28px;font-weight:800;color:var(--accent);letter-spacing:-.02em;line-height:1">×10</span>
+              <div>
+                <div class="case-title">Pardauto · Импорт авто</div>
+                <div style="font-size:12px;color:var(--text-light);font-weight:500">скорость расчёта</div>
+              </div>
+            </div>
+            <div class="case-result">Менеджеры тратили 20+ минут на расчёт. Внедрён Telegram-бот с парсером — клиент получает цену за секунды</div>
+          </div>
+          <div class="case-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+              <span style="font-size:28px;font-weight:800;color:var(--accent);letter-spacing:-.02em;line-height:1">−40%</span>
+              <div>
+                <div class="case-title">Завод · Производство 60+ человек</div>
+                <div style="font-size:12px;color:var(--text-light);font-weight:500">простои и брак</div>
+              </div>
+            </div>
+            <div class="case-result">«Я забыл», «Я не передал» — разрывы между цехом и офисом. Жёсткие регламенты + ICF-работа с сопротивлением персонала</div>
+          </div>
+          <div class="case-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+              <span style="font-size:28px;font-weight:800;color:var(--accent);letter-spacing:-.02em;line-height:1">2/день</span>
+              <div>
+                <div class="case-title">AI-блогер · Личный бренд</div>
+                <div style="font-size:12px;color:var(--text-light);font-weight:500">постов автоматически</div>
+              </div>
+            </div>
+            <div class="case-result">Ведение канала превратилось в «обязаловку». n8n + GPT сам берёт темы, пишет в авторском стиле и публикует дважды в день</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ────────────────────────────────────────── -->
+<section class="alt" id="reviews">
+  <div class="container">
+    <div class="section-header center">
+      <div class="eyebrow">Отзывы</div>
+      <h2>Что говорят участники прошлых групп</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-quote">Алексей является технически грамотным специалистом, который сам тестирует новые инструменты и выстраивает с их помощью работающие решения. Скорость, с которой он осваивает и применяет новые технологии, по-настоящему вдохновляет. Автоматические отчёты после каждой встречи стали для меня по-настоящему полезным рабочим инструментом.</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">А</div>
+          <div>
+            <div class="author-name">Анатолий Гречухин</div>
+            <div class="author-role">Предприниматель</div>
+            <div class="stars">★★★★★</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">Алексей очень чётко структурирует задачи, упаковывает их в понятные презентации и объясняет так, что появляется ясность и понимание, что делать дальше. После консультаций начинаю действовать быстрее, по-другому смотрю на своё позиционирование и уже начала выходить в партнёрство, которое раньше откладывала.</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">Н</div>
+          <div>
+            <div class="author-name">Нонна Гречухина</div>
+            <div class="author-role">Архитектор-дизайнер</div>
+            <div class="stars">★★★★★</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">Если выполнять всё, что вы говорите, результат гарантирован. Подтверждаю личным примером — получаю лиды. Мастермайнд — это «коллективный разум»: инсайты приходят очень быстро, без него доходила бы до всего месяцами.</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">Е</div>
+          <div>
+            <div class="author-name">Елена Шакурова</div>
+            <div class="author-role">Эксперт, LinkedIn</div>
+            <div class="stars">★★★★★</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">Ценность мастермайнда в том, что это практически индивидуальная работа с тобой. Алексею не нужно долго объяснять — он очень быстро считывает ситуацию, видит твой путь и даёт чёткие шаги. И самое главное: если просто брать и делать так, как он говорит, результат приходит сразу.</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">Т</div>
+          <div>
+            <div class="author-name">Татьяна Неклюдова</div>
+            <div class="author-role">Предприниматель</div>
+            <div class="stars">★★★★★</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">В начале обучения в голове не было никакой системы, но на крайнем ММ вдруг поняла, что система начала выстраиваться, появилась ясность и чёткость дальнейших шагов. Это ещё путь, но уже понятно куда идти. Возможности вдохновляют!</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">М</div>
+          <div>
+            <div class="author-name">Мария Шаталова</div>
+            <div class="author-role">Участник ММ Харды-4</div>
+            <div class="stars">★★★★★</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">Алексей добавляет скорости и практической реализуемости всем решениям. Многие вещи начинают восприниматься не как «сложно и долго», а как «можно сделать быстро и протестировать». Это сильно снижает внутреннее сопротивление и даёт ощущение, что технологии — реальный рабочий инструмент.</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">У</div>
+          <div>
+            <div class="author-name">Участник ММ Харды-4</div>
+            <div class="author-role">Предприниматель</div>
+            <div class="stars">★★★★★</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── NOT FOR EVERYONE ────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-header center">
+      <div class="eyebrow">Отбор</div>
+      <h2>Мы берём не всех</h2>
+      <p class="lead">Группа — строго 5–8 человек. Каждый получает полный разбор: твой отчёт, вопросы Алексея, мнение группы. Больше 8 — и глубина теряется. Это не маркетинг, это физика формата.</p>
+    </div>
+    <div class="filter-grid">
+      <div class="filter-col">
+        <h3>✅ Подойдёт, если ты:</h3>
+        <div class="filter-list">
+          <div class="filter-item">
+            <div class="filter-icon yes">✓</div>
+            <span>Предприниматель, эксперт или управленец с работающим бизнесом</span>
+          </div>
+          <div class="filter-item">
+            <div class="filter-icon yes">✓</div>
+            <span>Готов внедрять, а не просто слушать — хочешь действий</span>
+          </div>
+          <div class="filter-item">
+            <div class="filter-icon yes">✓</div>
+            <span>Стабильный личный доход от 150 000 руб./мес</span>
+          </div>
+          <div class="filter-item">
+            <div class="filter-icon yes">✓</div>
+            <span>Готов инвестировать в рабочий стек: Gemini + Claude + сервер (~5 000 руб./мес)</span>
+          </div>
+        </div>
+      </div>
+      <div class="filter-col">
+        <h3>❌ Не возьмём, если:</h3>
+        <div class="filter-list">
+          <div class="filter-item">
+            <div class="filter-icon no">✗</div>
+            <span>Нет работающего продукта и стабильного дохода</span>
+          </div>
+          <div class="filter-item">
+            <div class="filter-icon no">✗</div>
+            <span>Хочешь просто послушать — без готовности менять привычки</span>
+          </div>
+          <div class="filter-item">
+            <div class="filter-icon no">✗</div>
+            <span>Ищешь «волшебную таблетку» без вложений в инструменты</span>
+          </div>
+          <div class="filter-item">
+            <div class="filter-icon no">✗</div>
+            <span>Не готов к прямой жёсткой обратной связи по своему бизнесу</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="algo-block">
+      <h3>🤖 Умный AI-алгоритм сопоставления</h3>
+      <p>Чтобы попасть на диагностический созвон, нужно пройти квалификацию. 10 вопросов о твоём бизнесе — алгоритм анализирует твои «узкие горлышки» и сопоставляет с экспертизой Алексея. Только если совпадение — ты получаешь ссылку на созвон.</p>
+      <div class="algo-steps">
+        <div class="algo-step"><span class="n">1</span> Заполняешь анкету</div>
+        <div class="algo-arrow">→</div>
+        <div class="algo-step"><span class="n">2</span> AI анализирует ответы</div>
+        <div class="algo-arrow">→</div>
+        <div class="algo-step"><span class="n">3</span> Сопоставление с экспертизой</div>
+        <div class="algo-arrow">→</div>
+        <div class="algo-step"><span class="n">4</span> Ссылка на созвон</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ─────────────────────────────────────────────── -->
+<section class="alt" id="pricing">
+  <div class="container">
+    <div class="section-header center">
+      <div class="eyebrow">Стоимость</div>
+      <h2>Инвестиция в 6-недельный спринт</h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-label">Базовая стоимость</div>
+        <div class="price-amount"><span class="currency">₽</span>30 000</div>
+        <div class="price-note">Стандартная цена участия</div>
+        <div class="price-includes">
+          <div class="price-include-item">6 еженедельных созвонов</div>
+          <div class="price-include-item">AI-Саммари после каждой встречи</div>
+          <div class="price-include-item">LMS-дашборд и трекер задач</div>
+          <div class="price-include-item">База знаний и промпты</div>
+          <div class="price-include-item">Закрытый Telegram-чат</div>
+          <div class="price-include-item">ICF-сессия постановки целей</div>
+        </div>
+        <a href="https://forms.yandex.ru/u/69e1e56ef47e73ae23daa75c/?page=1" class="btn btn-outline" style="width:100%;justify-content:center">Записаться →</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">🔥 После созвона · 24 часа</div>
+        <div class="price-label">Специальная цена</div>
+        <div class="price-amount"><span class="currency">₽</span>25 000</div>
+        <div class="price-note">Скидка 5 000 руб. фиксируется на 24 часа после диагностического созвона</div>
+        <div class="price-includes">
+          <div class="price-include-item">6 еженедельных созвонов</div>
+          <div class="price-include-item">AI-Саммари после каждой встречи</div>
+          <div class="price-include-item">LMS-дашборд и трекер задач</div>
+          <div class="price-include-item">База знаний и промпты</div>
+          <div class="price-include-item">Закрытый Telegram-чат</div>
+          <div class="price-include-item" style="color:var(--accent);font-weight:600">🎁 ICF-сессия постановки целей (7 000 руб.) · в подарок</div>
+        </div>
+        <a href="https://forms.yandex.ru/u/69e1e56ef47e73ae23daa75c/?page=1" class="btn btn-primary" style="width:100%;justify-content:center">Пройти AI-отбор →</a>
+      </div>
+    </div>
+    <div class="steps-flow" id="apply">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <h4>Анкета</h4>
+        <p>10 вопросов о твоём бизнесе · 5 минут</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <h4>AI-анализ</h4>
+        <p>Алгоритм проверяет совпадение с экспертизой</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <h4>Созвон</h4>
+        <p>15–20 мин разбора твоей задачи с Алексеем</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <h4>Старт</h4>
+        <p>Оплата 25 000 руб. · Доступы в группу</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <h4>ICF-сессия</h4>
+        <p>60 мин · Постановка цели до первой встречи</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <h4>Мастермайнды</h4>
+        <p>6 еженедельных встреч · AI-саммари каждому</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:44px">
+      <a href="https://forms.yandex.ru/u/69e1e56ef47e73ae23daa75c/?page=1" class="btn btn-primary btn-lg btn-arrow">Пройти AI-отбор и занять место</a>
+      <div class="trust-line" style="justify-content:center;margin-top:14px">
+        <span class="dot"></span>
+        Набор открыт до 30 апреля · Старт группы — май 2026
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ─────────────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-header center">
+      <div class="eyebrow">FAQ</div>
+      <h2>Частые вопросы</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Я не технарь — мне подойдёт?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Да, формат создан именно для управленцев и предпринимателей, а не для айтишников. Алексей сам в прошлом операционный директор — он объясняет не через код, а через бизнес-логику и конкретные результаты. Если ты умеешь пользоваться Telegram и Google Таблицами — этого достаточно для старта.</div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Когда встречи и в каком формате?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Расписание уточняется при распределении в группу — мы учитываем пожелания всех участников. Встречи проходят в Яндекс.Телемост (онлайн, без установки программ). Обычно — вечер будних дней, 1 раз в неделю, 90 минут.</div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Что если пропущу встречу?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Запись встречи сохраняется в базе знаний. Плюс ты получаешь AI-саммари — структурированный документ с разборами всех участников, в том числе с твоим разделом, если ты успел попасть на «горячий стул» в прошлые разы. Но чем больше пропусков — тем меньше отдача от продукта.</div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Чем это отличается от обычного курса?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Нет лекций ради лекций. Нет домашних заданий ради заданий. Каждую неделю — одна конкретная задача, ведущая к деньгам. Алексей напрямую работает с твоей ситуацией, а не рассказывает абстрактные теории. Ты платишь за фокус на своём бизнесе, а не за контент.</div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Нужно ли устанавливать какие-то программы?
+          <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Для созвонов — только браузер (Яндекс.Телемост). Полный стек участника для автоматизаций:<br><br>
+            🤖 <strong>Gemini + Claude</strong>: ~4 000 руб./мес<br>
+            🖥️ <strong>VPS-сервер</strong> (для n8n и автоматизаций): ~400–500 руб./мес<br>
+            🌐 <strong>Домен</strong>: ~200 руб./мес<br><br>
+            Итого ~4 700 руб./мес. Мы даём пошаговые инструкции по настройке — участники разворачивают автоматизации на своих серверах самостоятельно, но со всеми необходимыми гайдами от нас.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ───────────────────────────────────────────── -->
+<section class="final-cta">
+  <div class="container">
+    <div class="final-cta-content">
+      <div class="eyebrow" style="color:#60A5FA;justify-content:center">Следующая группа · Май 2026</div>
+      <h2>Набор закрывается 30 апреля.<br>Пока ты думаешь — кто-то уже автоматизирует твою рутину.</h2>
+      <p class="lead">Вход только по AI-квалификации. 10 вопросов, 5 минут.</p>
+      <a href="https://forms.yandex.ru/u/69e1e56ef47e73ae23daa75c/?page=1" class="btn btn-primary btn-lg btn-arrow">Пройти AI-отбор и занять место</a>
+      <div class="trust-line">
+        <span class="dot"></span>
+        Бесплатный диагностический созвон · Скидка 5 000 руб. действует 24 ч
+      </div>
+    </div>
+    <img src="../../assets/Финальный CTA_.png" alt="" class="cta-character">
+  </div>
+</section>
+
+<!-- ── FOOTER ──────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div style="margin-bottom:12px">
+      © 2026 · Мастермайнд с ИИ-ускорением Алексея Зотова
+    </div>
+    <div style="font-size:12px;color:var(--text-light);line-height:1.8">
+      ИП Зотов Алексей Андреевич · ИНН 772703725826 · ОГРНИП 322774600500430<br>
+      117335, Россия, г. Москва, ул. Профсоюзная, д. 44, корп. 5, кв. 1<br>
+      <a href="mailto:mm@ezagroup.ru">mm@ezagroup.ru</a>
+      · <a href="privacy.html">Политика конфиденциальности</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Sticky header shadow
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // FAQ accordion
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const answer = item.querySelector('.faq-answer');
+    const isOpen = item.classList.contains('open');
+
+    // Close all
+    document.querySelectorAll('.faq-item.open').forEach(el => {
+      el.classList.remove('open');
+      el.querySelector('.faq-answer').style.maxHeight = '0';
+    });
+
+    // Open clicked (if was closed)
+    if (!isOpen) {
+      item.classList.add('open');
+      answer.style.maxHeight = answer.scrollHeight + 'px';
+    }
+  }
+</script>
+</body>
+</html>
